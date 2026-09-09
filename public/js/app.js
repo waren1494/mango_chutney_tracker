@@ -44,8 +44,13 @@ els.parseBtn.addEventListener("click", async () => {
     setStatus("Choose one or more invoice PDFs first.", true);
     return;
   }
+  if (!window.pdfjsLib) {
+    setStatus("PDF reader library failed to load (check your internet connection and reload the page).", true);
+    return;
+  }
   setStatus(`Parsing ${files.length} invoice(s)...`);
   let added = 0;
+  const errors = [];
   for (const file of files) {
     try {
       const text = await extractPdfText(file);
@@ -54,11 +59,17 @@ els.parseBtn.addEventListener("click", async () => {
       added += legs.length;
     } catch (err) {
       console.error(err);
-      setStatus(`Could not parse ${file.name}: ${err.message}`, true);
+      errors.push(`${file.name}: ${err.message}`);
     }
   }
   render();
-  setStatus(`Added ${added} leg(s) from ${files.length} invoice(s). Review and correct below before generating trackers.`);
+  // Errors take priority in the status line — a success message must never
+  // silently overwrite a real failure.
+  if (errors.length) {
+    setStatus(`Added ${added} leg(s), but ${errors.length} file(s) failed — ${errors.join("; ")}`, true);
+  } else {
+    setStatus(`Added ${added} leg(s) from ${files.length} invoice(s). Review and correct below before generating trackers.`);
+  }
   els.fileInput.value = "";
 });
 
