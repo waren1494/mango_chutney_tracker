@@ -1,0 +1,8 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# Netlify Functions here use the v2 (ESM, Request/Response) API and
+# auto-bundle with esbuild -- no separate build command needed.
+# @netlify/blobs works automatically once deployed on Netlify, using
+# implicit per-site credentials -- no manual DB setup required.

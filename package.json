@@ -1,0 +1,10 @@
+{
+  "name": "mango-chutney-tracker",
+  "version": "1.0.0",
+  "description": "Converts Mango Chutney invoices into Kitchen, Loading, and Delivery trackers.",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
