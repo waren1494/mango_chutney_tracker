@@ -184,9 +184,12 @@ export function generateLoadingTracker(date, legs) {
     });
     y += 10;
 
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const maxWidth = pageWidth - 80;
     doc.setFont(undefined, "bold");
-    doc.text(l.venue || "", 40, y);
-    y += 14;
+    const venueLines = doc.splitTextToSize(l.venue || "", maxWidth);
+    doc.text(venueLines, 40, y);
+    y += venueLines.length * 14;
     doc.setFont(undefined, "normal");
     doc.text(l.contact || "", 40, y);
   });

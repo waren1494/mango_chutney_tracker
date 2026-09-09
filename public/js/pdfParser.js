@@ -65,7 +65,27 @@ function extractField(body, label, stopLabelsRe) {
 }
 
 const STOP_LABELS =
-  "\\n\\s*(?:DATE|VENUE|TIME|SETUP TIME|SERVING TIME|EVENT TYPE|EVENT THEME)\\s*:";
+  "\\s(?:DATE|VENUE|TIME|SETUP TIME|SERVING TIME|EVENT TYPE|EVENT THEME)\\s*:";
+
+// PDF text extraction doesn't always preserve line breaks reliably —
+// sometimes a venue's continuation and the SETUP/SERVING TIME fields that
+// follow it end up on what looks like one run of text with no newline
+// between them. Force each known field label onto its own line before any
+// field extraction runs, so the regexes above have a real boundary to stop
+// at regardless of how the source text was laid out.
+const LABELS_TO_BREAK_BEFORE = [
+  "SETUP TIME",
+  "SERVING TIME",
+  "EVENT TYPE",
+  "EVENT THEME",
+  "VENUE",
+  "DATE",
+  "TIME",
+];
+function normalizeLabelBreaks(text) {
+  const pattern = new RegExp("\\s*(" + LABELS_TO_BREAK_BEFORE.join("|") + ")\\s*:", "gi");
+  return text.replace(pattern, "\n$1 :");
+}
 
 function parseDeliveryOrEventBlock(body) {
   const venue = extractField(body, "VENUE", STOP_LABELS);
@@ -120,6 +140,7 @@ function extractQty(firstLine) {
  * @returns {Array<Object>} draft legs
  */
 export function parseInvoiceText(text, sourceFile) {
+  text = normalizeLabelBreaks(text);
   const invoiceNo = extractInvoiceNo(text);
   const headerDate = extractHeaderDate(text);
   const customer = extractCustomer(text);
